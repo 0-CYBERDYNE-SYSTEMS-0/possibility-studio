@@ -1,0 +1,8 @@
+.studio-data/
+.venv/
+__pycache__/
+.pytest_cache/
+build/
+*.egg-info/
+*.py[cod]
+.playwright-mcp/

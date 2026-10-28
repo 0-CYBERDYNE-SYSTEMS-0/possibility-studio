@@ -1,0 +1,1 @@
+"""Possibility Studio application package."""

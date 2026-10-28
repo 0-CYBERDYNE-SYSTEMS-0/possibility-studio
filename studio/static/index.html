@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2eee5">
+  <title>Possibility Studio</title>
+  <script src="/static/theme.js"></script>
+  <link rel="stylesheet" href="/static/studio.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body data-view="start">
+  <div class="app-shell">
+    <header class="topbar" data-component="topbar">
+      <a class="wordmark" href="/" aria-label="Possibility Studio home">
+        <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>possibility<span class="wordmark-light"> / studio</span></span>
+      </a>
+      <div class="topbar-meta">
+        <details class="menu" id="projects-menu" data-component="sidebar">
+          <summary class="settings-trigger">Projects</summary>
+          <div class="menu-panel" aria-label="Projects">
+            <button class="new-project-button" id="new-project-button" type="button">
+              <span aria-hidden="true">＋</span> New exploration
+            </button>
+            <p class="rail-heading">Recent studies</p>
+            <nav class="project-list" id="project-list" aria-label="Recent studies">
+              <p class="rail-empty">Your studies will gather here.</p>
+            </nav>
+          </div>
+        </details>
+        <button class="settings-trigger" id="theme-toggle" type="button" aria-pressed="false">Theme: Light</button>
+        <button class="settings-trigger" id="open-settings" type="button">
+          <span class="settings-glyph" aria-hidden="true">✳</span>
+          Provider settings
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content" id="main-content">
+      <section class="welcome-view" id="welcome-view" data-component="welcome" aria-labelledby="welcome-title">
+        <div class="welcome-center">
+          <h1 id="welcome-title">What do you want to <em>make?</em></h1>
+          <p class="welcome-deck">Describe it. You get three directions, pick one, then keep shaping it.</p>
+          <form class="brief-form" id="create-project-form">
+            <p class="setup-banner" id="setup-banner" hidden>No provider is set up yet. <button type="button" class="button-text" id="setup-open-settings">Open Provider settings</button></p>
+            <label class="sr-only" for="project-brief">Creative brief</label>
+            <textarea id="project-brief" class="grow" name="brief" required maxlength="5000" rows="4" placeholder="Describe the experience, the people it serves, and anything it should make possible."></textarea>
+            <div class="attach-row">
+              <label class="chip-upload" for="reference-image">
+                <span id="upload-name">＋ Reference image</span>
+                <input id="reference-image" type="file" accept="image/png,image/jpeg,image/webp">
+              </label>
+              <label class="chip-upload" for="initial-assets">
+                <span id="initial-assets-name">＋ Files</span>
+                <input id="initial-assets" type="file" accept=".png,.jpg,.jpeg,.webp,.mp4,.webm,.glb,image/png,image/jpeg,image/webp,video/mp4,video/webm,model/gltf-binary" multiple>
+              </label>
+              <button class="button-primary" type="submit"><span>Generate three directions</span><b aria-hidden="true">↗</b></button>
+            </div>
+            <details class="more-options">
+              <summary>Options</summary>
+              <label class="field-label" for="project-title">Working title <span>Optional</span></label>
+              <input id="project-title" name="title" maxlength="100" placeholder="A name for this exploration">
+              <div class="form-row">
+                <label class="field-label" for="reference-intent">Visual reference intent</label>
+                <select id="reference-intent" name="reference_intent">
+                  <option value="inspire">Inspire the direction</option>
+                  <option value="reconstruct">Reconstruct the reference</option>
+                </select>
+              </div>
+              <p class="field-hint">Inspire uses an attached image as a mood and style guide. Reconstruct aims to match its layout. Both apply only if you add an image.</p>
+              <p class="asset-help">Reference: PNG, JPEG, or WebP up to 10 MB. Files: PNG, JPEG, WebP, MP4, WebM, or GLB, 20 MB each and 50 MB per study. The prototype can use attached files.</p>
+            </details>
+            <p class="form-error" id="create-error" role="alert" hidden></p>
+          </form>
+          <div class="recent-wrap" id="recent-wrap" hidden>
+            <p class="rail-heading">Recent</p>
+            <div class="recent-list" id="recent-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="project-view" id="project-view" data-component="project" hidden>
+        <div class="operation-banner" id="operation-banner" aria-live="polite" hidden></div>
+        <div class="project-head">
+          <div class="project-title-wrap">
+            <p class="overline"><span class="kicker-dot"></span> Active study <span id="project-reference-label"></span></p>
+            <h1 id="active-project-title"></h1>
+            <p class="project-brief" id="active-project-brief"></p>
+          </div>
+          <div class="project-head-side">
+            <span class="mode-badge" id="mode-badge"></span>
+            <div class="reference-preview" id="reference-preview" hidden>
+              <img id="reference-thumbnail" alt="Attached visual reference">
+              <span id="reference-intent-label"></span>
+            </div>
+            <button class="button-secondary" id="open-files" type="button">Files</button>
+            <button class="button-secondary" id="back-to-canvas" type="button" hidden>Back to prototype →</button>
+          </div>
+        </div>
+
+        <section class="directions-section" data-component="directions" aria-labelledby="directions-title">
+          <div class="section-heading">
+            <div class="section-title-group">
+              <div><p class="overline">Open the field</p><h2 id="directions-title">Choose a direction</h2></div>
+            </div>
+            <form class="explore-form" id="explore-form">
+              <label class="sr-only" for="direction-steer">Additional guidance for new directions</label>
+              <textarea id="direction-steer" class="grow" rows="1" maxlength="1000" placeholder="Add a point of view (optional)"></textarea>
+              <button class="button-secondary" type="submit">Try three more <span aria-hidden="true">↻</span></button>
+            </form>
+          </div>
+          <div class="directions-grid" id="directions-grid">
+            <div class="direction-empty">
+              <span class="empty-number">01 — 03</span>
+              <p>Your first directions will appear here.</p>
+              <button type="button" id="first-explore">Explore three directions <span aria-hidden="true">↗</span></button>
+            </div>
+          </div>
+          <p class="image-guidance" id="image-guidance" hidden></p>
+        </section>
+
+        <section class="prototype-section" data-component="canvas" aria-labelledby="prototype-title">
+          <h2 class="sr-only" id="prototype-title">Working canvas</h2>
+          <div class="shape-bar">
+            <button type="button" class="button-text" id="back-to-directions">← Directions</button>
+            <details class="menu" id="history-menu">
+              <summary class="source-tab">History</summary>
+              <div class="menu-panel history-panel">
+                <div class="history-wrap" id="history-wrap" hidden>
+                  <div class="history-heading">
+                    <p class="rail-heading">Exploration history</p>
+                    <span id="history-count">00</span>
+                  </div>
+                  <div class="history-list" id="history-list"></div>
+                </div>
+              </div>
+            </details>
+            <span class="canvas-spacer"></span>
+            <div class="canvas-actions" id="canvas-actions" hidden>
+              <div class="source-tabs" role="tablist" aria-label="Prototype view">
+                <button class="source-tab active" id="preview-tab" role="tab" aria-selected="true" aria-controls="preview-panel" type="button">Preview</button>
+                <button class="source-tab" id="source-tab" role="tab" aria-selected="false" aria-controls="source-panel" type="button">Source</button>
+              </div>
+              <button class="source-tab" id="inspect-toggle" type="button" aria-pressed="false">Point at a part</button>
+              <button class="source-tab fullscreen-button" id="fullscreen-button" type="button">Fullscreen</button>
+              <button class="source-tab" id="open-details" type="button">Details</button>
+              <a class="button-export" id="export-link" href="#" download>Export HTML <span aria-hidden="true">↓</span></a>
+            </div>
+          </div>
+          <div class="canvas-meta" id="canvas-meta" hidden>
+            <span id="revision-label"></span>
+            <span class="canvas-dot" aria-hidden="true">·</span>
+            <span id="revision-model"></span>
+            <span class="canvas-spacer"></span>
+            <span class="canvas-status"><i></i> Saved version</span>
+          </div>
+          <div class="preview-shell" id="preview-shell">
+            <div class="preview-empty" id="preview-empty">
+              <span class="canvas-cross" aria-hidden="true">＋</span>
+              <p class="overline">The canvas is ready</p>
+              <p>Choose a direction to build a runnable browser prototype.</p>
+            </div>
+            <div class="preview-panel" id="preview-panel" role="tabpanel" aria-labelledby="preview-tab" hidden>
+              <iframe id="prototype-frame" title="Runnable prototype preview" sandbox="allow-scripts"></iframe>
+            </div>
+            <div class="source-panel" id="source-panel" role="tabpanel" aria-labelledby="source-tab" hidden>
+              <pre><code id="source-code"></code></pre>
+            </div>
+          </div>
+          <p class="sandbox-note" id="sandbox-note" hidden>Interactive browser prototype. External services are not connected.</p>
+          <div class="preview-error" id="preview-error" role="status" hidden></div>
+        </section>
+
+        <section class="refine-section" id="refine-section" data-component="refine" aria-labelledby="refine-title" hidden>
+          <h2 class="sr-only" id="refine-title">What would you change?</h2>
+          <div class="next-steps" id="next-steps" data-component="next-steps" aria-live="polite" hidden>
+            <p class="next-steps-status" id="next-steps-status" hidden></p>
+            <ul class="next-steps-list" id="next-steps-list"></ul>
+            <button type="button" class="button-text" id="next-steps-retry" hidden>Suggest next steps</button>
+          </div>
+          <ul class="target-list" id="target-list" aria-label="Parts you picked" hidden></ul>
+          <form class="refine-form" id="refine-form">
+            <label class="sr-only" for="refine-instruction">Describe a change to this saved prototype</label>
+            <textarea id="refine-instruction" class="grow" required maxlength="2000" rows="2" placeholder="Change anything. For example: make the hero bigger, but keep the quiet layout."></textarea>
+            <button class="button-primary" type="submit">Apply changes <span aria-hidden="true">↗</span></button>
+          </form>
+        </section>
+        <footer class="workbench-footer"><span>Possibility / Studio</span><span id="workspace-footer-status">Your work is stored on this machine.</span></footer>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="settings-dialog" id="settings-dialog" data-component="settings" aria-labelledby="settings-title">
+    <form method="dialog" class="dialog-chrome"><button class="dialog-close" aria-label="Close provider settings">×</button></form>
+    <div class="settings-content">
+      <p class="overline">Studio configuration</p>
+      <h2 id="settings-title">Provider settings</h2>
+      <p class="settings-description">Configure an OpenAI-compatible chat completions endpoint. The key stays on this machine and is never sent back to the browser.</p>
+      <form id="settings-form">
+        <h3 class="settings-group">Connection</h3>
+        <label class="field-label" for="provider-preset">Provider</label>
+        <select id="provider-preset"></select>
+        <label class="field-label" for="provider-url">Chat completions URL</label>
+        <input id="provider-url" type="url" required placeholder="https://…/v1/chat/completions" autocomplete="url">
+        <label class="field-label" for="provider-model">Model</label>
+        <select id="provider-model"></select>
+        <input id="provider-model-custom" maxlength="200" placeholder="Model ID, for example vendor/model-name" hidden>
+        <label class="field-label" for="provider-key">API key <span id="key-state">Not configured</span></label>
+        <input id="provider-key" type="password" maxlength="4096" autocomplete="new-password" placeholder="Leave blank to keep the saved key">
+        <h3 class="settings-group">Limits</h3>
+        <label class="field-label" for="code-max-tokens">Maximum code output tokens <span>2,000–128,000</span></label>
+        <input id="code-max-tokens" type="number" min="2000" max="128000" step="100" required>
+        <label class="field-label" for="request-timeout">Request timeout, seconds <span>30–3600</span></label>
+        <input id="request-timeout" type="number" min="30" max="3600" step="10" required>
+        <label class="field-label" for="reasoning-effort">Reasoning effort <span>Optional</span></label>
+        <select id="reasoning-effort">
+          <option value="">Use provider default</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="max">Max</option>
+        </select>
+        <h3 class="settings-group">Behavior</h3>
+        <label class="checkbox-line"><input id="vision-supported" type="checkbox"><span><b>This model accepts image input</b><small>Selected explicitly by you; the studio does not infer model capabilities.</small></span></label>
+        <label class="checkbox-line"><input id="auto-repair" type="checkbox"><span><b>Try one repair after browser checks</b><small>Uses observed browser issues for at most one targeted repair.</small></span></label>
+        <p class="settings-warning" id="settings-warning" role="status"></p>
+        <p class="settings-error" id="settings-error" role="alert" hidden></p>
+        <div class="settings-actions">
+          <button type="button" class="button-text" id="clear-key-button">Clear saved key</button>
+          <button class="button-primary" type="submit">Save settings <span aria-hidden="true">↗</span></button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="settings-dialog details-dialog" id="details-dialog" data-component="report" aria-labelledby="details-title">
+    <form method="dialog" class="dialog-chrome"><button class="dialog-close" aria-label="Close details">×</button></form>
+    <div class="settings-content">
+      <p class="overline">This study</p>
+      <h2 id="details-title">Details</h2>
+      <section class="project-assets" aria-labelledby="project-assets-title">
+        <div class="asset-heading">
+          <div><p class="overline">Available to this study</p><h3 id="project-assets-title">Prototype files</h3></div>
+          <form class="asset-upload-form" id="asset-upload-form">
+            <label class="button-secondary asset-browse" for="project-assets-input">Add files <span aria-hidden="true">↥</span></label>
+            <input id="project-assets-input" type="file" accept=".png,.jpg,.jpeg,.webp,.mp4,.webm,.glb,image/png,image/jpeg,image/webp,video/mp4,video/webm,model/gltf-binary" multiple>
+            <button class="button-secondary" id="asset-upload-submit" type="submit">Upload <span aria-hidden="true">↗</span></button>
+          </form>
+        </div>
+        <p class="asset-help">PNG, JPEG, WebP, MP4, WebM, and self-contained GLB · 20 MB per file, 50 MB per study. Files are immutable after upload.</p>
+        <ul class="asset-list" id="project-assets-list" aria-live="polite"></ul>
+        <p class="asset-upload-status" id="asset-upload-status" role="status" aria-live="polite" hidden></p>
+      </section>
+      <section class="revision-report" id="revision-report" hidden>
+        <div class="report-heading">
+          <span class="overline">Revision evidence</span>
+          <span class="report-summary" id="report-summary">What was reported and observed</span>
+        </div>
+        <p class="report-note">Implementation claims are not proof of complete correctness. Browser observations below show the checks actually run.</p>
+        <div class="report-grid">
+          <div class="report-group">
+            <h3>Implementation report</h3>
+            <ul id="requirement-report"></ul>
+            <h3>Assumptions</h3>
+            <ul id="assumption-report"></ul>
+          </div>
+          <div class="report-group browser-report">
+            <h3>Browser observations</h3>
+            <p class="report-check-status" id="browser-check-status"></p>
+            <ul id="browser-check-report"></ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </dialog>
+
+  <aside class="activity-panel" id="activity-panel" data-component="activity" role="region" aria-label="Studio activity" hidden>
+    <span class="activity-indicator" aria-hidden="true">
+      <span class="activity-spinner" id="activity-spinner" hidden></span>
+      <span class="activity-symbol" id="activity-symbol"></span>
+    </span>
+    <div class="activity-copy">
+      <p class="activity-title" id="activity-title" role="status" aria-live="polite" aria-atomic="true"></p>
+      <p class="activity-detail" id="activity-detail" hidden></p>
+      <span class="activity-elapsed" id="activity-elapsed" hidden></span>
+      <ol class="build-steps" id="build-steps" aria-label="Build steps" hidden></ol>
+      <div class="build-meter" id="build-meter" hidden>
+        <div class="build-bar" role="progressbar" id="build-bar" aria-label="Output token budget used" aria-valuemin="0" aria-valuemax="100"><span id="build-bar-fill"></span></div>
+        <p class="build-stats" id="build-stats"></p>
+      </div>
+      <details class="build-watch" id="build-watch" hidden>
+        <summary>Watch the build</summary>
+        <div class="build-tabs">
+          <button type="button" class="button-text" id="build-tab-code" aria-pressed="true">Code</button>
+          <button type="button" class="button-text" id="build-tab-preview" aria-pressed="false">Draft preview</button>
+        </div>
+        <pre class="build-code" id="build-code" tabindex="0"></pre>
+        <iframe class="build-preview" id="build-preview" sandbox="" title="Draft preview of the prototype being built" hidden></iframe>
+      </details>
+    </div>
+  </aside>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
